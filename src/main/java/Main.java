@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Main {
-    private static final String HOST = "10.255.253.146";
+    private static final String HOST = "127.0.0.1";
     private static final String USER = "user";
-    private static final String PASSWORD = "20122012";
+    private static final String PASSWORD = "password";
     private static final List<String> COMMANDS = new LinkedList<>(
             List.of("ls -a",
                     "cd VoiceApp/forJava14",
@@ -15,7 +15,7 @@ public class Main {
                     "nohup java -jar voicetest.jar"
             ));
 
-    private static final String SFTPWORKINGDIR = "VoiceApp"; // Source Directory on SFTP server
+    private static final String SFTPWORKINGDIR = "Test"; // Source Directory on SFTP server
     private static final String LOCALDIRECTORY = "myTestFolder"; // Local Target Directory
 
     public static void main(String[] args) {
@@ -23,9 +23,20 @@ public class Main {
         Session session = SSHUtil.createSession(HOST,USER,PASSWORD);
 
         // Просто выполнить команды
-        // SSHUtil.cmdExec(session, COMMANDS);
+/*        var channelExec= SSHUtil.getChannel(session, TypeChannel.EXEC);
+        SSHUtil.cmdExec(channelExec, COMMANDS);
+        channelExec.disconnect();*/
 
-        // Скопировать папку с файлами
-        SSHUtil.downloadFromFolder(session, SFTPWORKINGDIR, LOCALDIRECTORY);
+
+        var channelSftp = SSHUtil.getChannel(session, TypeChannel.SFTP);
+
+        // Скопировать папку с файлами с удаленного сервера
+        SSHUtil.downloadDirectoryFromRemoteServer(channelSftp, SFTPWORKINGDIR, LOCALDIRECTORY);
+
+        // Загрузить на удаленный сервер папку с файлами
+        // SSHUtil.uploadFolderToRemoteServer(channelSftp, LOCALDIRECTORY, SFTPWORKINGDIR);
+
+       channelSftp.disconnect();
+
     }
 }
